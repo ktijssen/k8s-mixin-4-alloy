@@ -1,0 +1,71 @@
+# https://taskfile.dev
+version: "3"
+
+dotenv: [".envrc", ".env"]
+
+vars:
+  # Determines where to output the files
+  OUTPUT_DIR: '{{ .OUTPUT_DIR | default "output" }}'
+
+interval: 500ms
+
+silent: true
+
+tasks:
+  default: task --list
+
+  all:
+    desc: "Install/Update source & Generate All (Alerts, Dashboards, Rules)"
+    cmds:
+      - task: update
+      - task: alerts
+      - task: rules
+      - task: dashboards
+
+  update:
+    desc: "Install/Update the source"
+    deps:
+      - task: check-tools
+    cmds:
+      - cmd: jb update
+
+  alerts:
+    desc: "Generate PrometheusRules for Alerts"
+    deps:
+      - task: check-tools
+    cmds:
+      - cmd: mkdir -p {{.OUTPUT_DIR}}/alerts
+      - cmd: jsonnet --yaml-stream alerts.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/alerts/" + .metadata.name + ".yaml"' --no-doc
+      - cmd: echo "Generating PrometheusRules 'Alerts' -- Done"
+      - cmd: cd {{.OUTPUT_DIR}}/alerts; rm -rf kustomization.yaml; kustomize create --autodetect
+
+  rules:
+    desc: "Generate PrometheusRules for Rules"
+    deps:
+      - task: check-tools
+    cmds:
+      - cmd: mkdir -p {{.OUTPUT_DIR}}/rules
+      - cmd: jsonnet --yaml-stream rules.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/rules/" + .metadata.name + ".yaml"' --no-doc
+      - cmd: echo "Generating PrometheusRules 'Rules' -- Done"
+      - cmd: cd {{.OUTPUT_DIR}}/rules; rm -rf kustomization.yaml; kustomize create --autodetect
+
+  dashboards:
+    desc: "Generate Grafana Dashboards"
+    deps:
+      - task: check-tools
+    cmds:
+      - cmd: mkdir -p {{.OUTPUT_DIR}}/dashboards
+      - cmd: jsonnet --yaml-stream dashboards.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/dashboards/" + .metadata.name + ".yaml"' --no-doc
+      - cmd: echo "Generating Grafana Dashboards -- Done"
+      - cmd: cd {{.OUTPUT_DIR}}/dashboards; rm -rf kustomization.yaml; kustomize create --autodetect
+
+  check-tools:
+    preconditions:
+      - sh: command -v yq > /dev/null
+        msg: "Make sure yq is installed and in your path (https://github.com/mikefarah/yq)"
+      - sh: command -v kustomize > /dev/null
+        msg: "Make sure kustomize is installed and in your path (https://kubectl.docs.kubernetes.io/installation/kustomize/)."
+      - sh: command -v jsonnet > /dev/null
+        msg: "Make sure jsonnet is installed and in your path (https://github.com/google/jsonnet)."
+      - sh: command -v jb > /dev/null
+        msg: "Make sure jsonnet-bundler is installed and in your path (https://github.com/jsonnet-bundler/jsonnet-bundler/releases/)."
