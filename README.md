@@ -36,6 +36,10 @@ There are several commands we can run to reach our destination. All the commands
 We can do all these 4 commands at once. ```task all```<br/>
 This will install/update the source directory and generate all the yaml-files.
 
+## Windows (Optional)
+By default Windows Alerts, Rules & Dashboards are also created. You can disabled this by creating a `.env` file with `NON_WINDOWS=true`.
+
+# Output
 The generated files are written in a output directory named ```output```. We can alternate this by adding the parameter ```OUTPUT_DIR=<path>```. 
 ```
 # task all OUTPUT_DIR=./newoutputdir \

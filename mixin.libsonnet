@@ -15,7 +15,7 @@ kubernetes {
     clusterLabel: 'cluster',
 
     grafanaK8s+:: {
-      dashboardNamePrefix: 'Mixin / ',
+      dashboardNamePrefix: 'Kubernetes / ',
       dashboardTags: ['kubernetes', 'infrastucture'],
     },
   },
