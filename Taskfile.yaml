@@ -36,7 +36,7 @@ tasks:
     cmds:
       - cmd: mkdir -p {{.OUTPUT_DIR}}/alerts
       - cmd: jsonnet --yaml-stream alerts.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/alerts/" + .metadata.name + ".yaml"' --no-doc
-      - cmd: "{{if .NON_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/alerts/*windows* {{end}}"
+      - cmd: "{{if .DISABLE_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/alerts/*windows* {{end}}"
       - cmd: echo "Generating PrometheusRules 'Alerts' -- Done"
       - cmd: cd {{.OUTPUT_DIR}}/alerts; rm -rf kustomization.yaml; kustomize create --autodetect
 
@@ -47,7 +47,7 @@ tasks:
     cmds:
       - cmd: mkdir -p {{.OUTPUT_DIR}}/rules
       - cmd: jsonnet --yaml-stream rules.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/rules/" + .metadata.name + ".yaml"' --no-doc
-      - cmd: "{{if .NON_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/rules/*windows* {{end}}"
+      - cmd: "{{if .DISABLE_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/rules/*windows* {{end}}"
       - cmd: echo "Generating PrometheusRules 'Rules' -- Done"
       - cmd: cd {{.OUTPUT_DIR}}/rules; rm -rf kustomization.yaml; kustomize create --autodetect
 
@@ -58,7 +58,7 @@ tasks:
     cmds:
       - cmd: mkdir -p {{.OUTPUT_DIR}}/dashboards
       - cmd: jsonnet --yaml-stream dashboards.jsonnet -J vendor/ | yq -P -o=yaml --split-exp='"{{.OUTPUT_DIR}}/dashboards/" + .metadata.name + ".yaml"' --no-doc
-      - cmd: "{{if .NON_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/dashboards/*windows* {{end}}"
+      - cmd: "{{if .DISABLE_WINDOWS}} rm -rf {{.OUTPUT_DIR}}/dashboards/*windows* {{end}}"
       - cmd: echo "Generating Grafana Dashboards -- Done"
       - cmd: cd {{.OUTPUT_DIR}}/dashboards; rm -rf kustomization.yaml; kustomize create --autodetect
 
